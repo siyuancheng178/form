@@ -1,14 +1,12 @@
 import { useStepperContext } from "../../contexts/StepperContext";
 import React, { useState } from 'react';
-import {Card, Switch, Checkbox, Button, Form, Col} from 'antd';
+import { Card, Checkbox, Button, Form } from 'antd';
 
 
 
 export default function News({prevStep, nextStep}) {
   const { userData, setUserData } = useStepperContext();
     const [ error, setError ] = useState("")
-    const [loading, setLoading] = useState(true);
-
 
   const onChange = (element, index) => {
       let news = userData.news
@@ -46,11 +44,9 @@ export default function News({prevStep, nextStep}) {
                     userData.news.map((e, index) => {
                         return (
                             <div className="mt-7 mx-auto w-4/5">
-                                <Card bordered={false} loading={loading} title="Card title"
-                                      extra={<Checkbox className="text-xs" checked={e.selected}
-                                                       onClick={() => onChange(e, index)}>Select</Checkbox>}
-                                >
-                                    <p>This is the description</p>
+                                <Card bordered={false}  title={e.title} onClick={() => onChange(e, index)}
+                                      extra={<Checkbox className="text-xs" checked={e.selected}>Select</Checkbox>}>
+                                    <p>{e.description}</p>
                                 </Card>
                             </div>
                         )

@@ -1,24 +1,33 @@
 import { useStepperContext } from "../../contexts/StepperContext";
-import {Button, Form, Select} from 'antd';
+import {Button, Form} from 'antd';
 import { Input } from 'antd';
-import React from "react";
+import React, {useState} from "react";
+import axios from "axios";
 const { TextArea } = Input;
-const { Option } = Select;
+
 
 export default function Additional({prevStep, nextStep}) {
   const { userData, setUserData } = useStepperContext();
+  const [ err, setErr ] = useState("")
+  const [ isFetchingGPT, setIsFetchingGPT ] = useState(false)
+
 
   const onFinish = () => {
-      nextStep()
+      setIsFetchingGPT(true)
+      axios.get("/report")
+          .then(res => {
+              setUserData({...userData, report: res})
+              nextStep()
+          })
+          .catch(err => setErr(`fail to generate report from GPT: ${err.message}`))
+          .finally(() => setIsFetchingGPT(false))
   }
 
   return (
       <div className="flex flex-col ">
           <Form
               layout="vertical"
-              labelCol={{
-                  span: 8,
-              }}
+              labelCol={{ span: 8 }}
               autoComplete="off"
               onFinish={onFinish}
               initialValues={{apiKey: userData.apiKey}}
@@ -29,7 +38,6 @@ export default function Additional({prevStep, nextStep}) {
                   rules={[
                       {
                           required: true,
-                          message: 'Please your OpenAI API Key!',
                           validator: (_, value) => {
                               if (value === undefined) {
                                   return Promise.reject('Please your OpenAI API Key!');
@@ -63,7 +71,7 @@ export default function Additional({prevStep, nextStep}) {
               >
                   <Input onChange={(e) => setUserData({...userData, title: e.target.value})}/>
               </Form.Item>
-
+              {err && <p className="text-red-600">{err}</p>}
               <div className="container mt-4 mb-8 flex justify-between">
                   <Button htmlType="button" onClick={prevStep}
                           className="cursor-pointer rounded-xl border-2 ml-10 border-slate-300 bg-white px-4 font-semibold uppercase
@@ -71,11 +79,17 @@ export default function Additional({prevStep, nextStep}) {
                       Back
                   </Button>
 
-                  <Button htmlType="submit"
-                          className="cursor-pointer rounded-lg bg-green-500 mr-8 px-4 font-semibold uppercase text-white transition duration-200 ease-in-out hover:bg-slate-700 hover:text-white"
-                  >
-                      Next
-                  </Button>
+                  {
+                      !isFetchingGPT?
+                          <Button htmlType="submit" className="cursor-pointer rounded-lg bg-green-500 mr-8 px-4 font-semibold uppercase text-white transition duration-200
+                ease-in-out hover:bg-slate-700 hover:text-white">
+                              Next
+                          </Button>:
+                          <Button htmlType="submit" className="cursor-pointer rounded-lg border-blue-500 mr-8 px-4 font-semibold text-blue-500 transition duration-200
+                cursor-not-allowed opacity-50">
+                              Loading....
+                          </Button>
+                  }
               </div>
           </Form>
       </div>

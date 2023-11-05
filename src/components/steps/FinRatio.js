@@ -1,11 +1,14 @@
 import { useStepperContext } from "../../contexts/StepperContext";
-import React, {useEffect, useState} from 'react';
-import {Button, Checkbox, Form, Row, Col} from 'antd';
+import React, { useState } from 'react';
+import { Button, Checkbox, Form,  Col } from 'antd';
+import axios from "axios";
 
 
 export default function FinRatio({prevStep, nextStep}) {
-  const [error, setError] = useState("")
   const { userData, setUserData } = useStepperContext();
+  const [ error, setError] = useState("")
+  const [ isFetchingNews, setIsFetchingNews ] = useState(false)
+
 
 
   const onChange = (element, index) => {
@@ -20,15 +23,30 @@ export default function FinRatio({prevStep, nextStep}) {
   };
 
   const validate = () => {
+    setIsFetchingNews(true)
     let options = userData.finRatiosOptions
     for (let i = 0; i < options.length; i++) {
       if (options[i].selected) {
-        nextStep()
+        proceedToNext()
         return
       }
     }
-
     setError("You must select at least one fin ratio")
+    setIsFetchingNews(false)
+  }
+
+  const proceedToNext = () => {
+    axios.get("/news")
+        .then(res => {
+          setUserData({...userData, news: res})
+        })
+        .catch(err => {
+          console.log(err)
+          setError(`fail to retrieve news: ${err.message}`)
+        })
+        .finally(() => {
+          setIsFetchingNews(false)
+        })
   }
 
 
@@ -40,6 +58,7 @@ export default function FinRatio({prevStep, nextStep}) {
               span: 8,
             }}
             autoComplete="off"
+            onFinish={validate}
         >
           <Form.Item name="TimeRatio" label="Select Time Ratio">
             {
@@ -61,11 +80,17 @@ export default function FinRatio({prevStep, nextStep}) {
               Back
             </Button>
 
-            <Button htmlType="button" onClick={validate}
-                    className="cursor-pointer rounded-lg bg-green-500 mr-8 px-4 font-semibold uppercase text-white transition duration-200 ease-in-out hover:bg-slate-700 hover:text-white"
-            >
-              Next
-            </Button>
+            {
+              !isFetchingNews?
+                  <Button htmlType="submit" className="cursor-pointer rounded-lg bg-green-500 mr-8 px-4 font-semibold uppercase text-white transition duration-200
+                ease-in-out hover:bg-slate-700 hover:text-white">
+                    Next
+                  </Button>:
+                  <Button htmlType="submit" className="cursor-pointer rounded-lg border-blue-500 mr-8 px-4 font-semibold text-blue-500 transition duration-200
+                cursor-not-allowed opacity-50">
+                    Loading....
+                  </Button>
+            }
           </div>
         </Form>
 

@@ -9,7 +9,7 @@ import Final from "./components/steps/Final";
 import Additional from "./components/steps/Additional";
 
 function App() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(3);
   const nextStep = () => {
     setCurrentStep(currentStep + 1)
   }
@@ -36,16 +36,9 @@ function App() {
       case 4:
         return <Additional prevStep={prevStep} nextStep={nextStep}/>;
       case 5:
-        return <Final />;
+        return <Final prevStep={prevStep} />;
       default:
     }
-  };
-
-  const handleClick = (direction) => {
-    let newStep = currentStep;
-
-    direction === "next" ? newStep++ : newStep--;
-    newStep > 0 && newStep <= steps.length && setCurrentStep(newStep);
   };
 
   return (

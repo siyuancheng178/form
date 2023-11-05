@@ -7,7 +7,8 @@ export function UseContextProvider({ children }) {
     finRatiosOptions: [{value: 'Apple', selected: false}, {value: 'Pear', selected: false}, {value: 'Orange', selected: false}],
     news: [{title: "Card1", description: "description1", selected: false},
       {title: "Card2", description: "description2", selected: false},
-      {title: "Card3", description: "description3", selected: false}]
+      {title: "Card3", description: "description3", selected: false}],
+    companyOptions: []
   });
 
   return (
